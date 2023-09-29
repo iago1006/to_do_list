@@ -70,12 +70,12 @@ app.post('/register', async (req, res) => {
 
         // Validación de correo electrónico
         if (!validator.isEmail(email)) {
-            return res.status(400).json({ message: 'El correo electrónico no es válido' });
+            return res.status(400).json({ error: 'INVALID_EMAIL', message: 'El correo electrónico no es válido' });
         }
 
         // Validación de nombre de usuario no vacío
         if (!username) {
-            return res.status(400).json({ message: 'El nombre de usuario no puede estar vacío' });
+            return res.status(400).json({ error: 'EMPTY_USERNAME', message: 'El nombre de usuario no puede estar vacío' });
         }
 
         // Verifica si el usuario ya existe en la base de datos
@@ -83,12 +83,12 @@ app.post('/register', async (req, res) => {
         const [existingUser] = await db.promise().query(userExistsQuery, [username]);
 
         if (existingUser.length > 0) {
-            return res.status(409).json({ message: 'El nombre de usuario ya está en uso' });
+            return res.status(409).json({ error: 'USERNAME_ALREADY_EXISTS', message: 'El nombre de usuario ya está en uso' });
         }
 
         // Validación de contraseña (mínimo 8 caracteres)
         if (password.length < 8) {
-            return res.status(400).json({ message: 'La contraseña debe tener al menos 8 caracteres' });
+            return res.status(400).json({ error: 'PASSWORD_TOO_SHORT', message: 'La contraseña debe tener al menos 8 caracteres' });
         }
 
         // Hashea la contraseña antes de almacenarla
@@ -102,10 +102,9 @@ app.post('/register', async (req, res) => {
         res.status(201).json({ message: 'Usuario registrado correctamente' });
     } catch (error) {
         console.error('Error al registrar usuario:', error);
-        res.status(500).json({ message: 'Error al registrar usuario' });
+        res.status(500).json({ error: 'INTERNAL_SERVER_ERROR', message: 'Error al registrar usuario' });
     }
 });
-
 
 
 // Ruta para la autenticación de usuarios

@@ -11,9 +11,11 @@ const LoginScreen = () => {
     const handleLogin = async () => {
         try {
             const user = await login(username, password);
-            navigation.navigate('MainScreen');
-            setUsername('');
-            setPassword('');
+            // Navega a la pantalla principal y reemplaza la pila de navegación
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'MainScreen' }],
+            });
         } catch (error) {
             console.error('Error de inicio de sesión:', error);
             setUsername('');

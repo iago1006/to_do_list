@@ -11,18 +11,40 @@ const RegisterScreen = () => {
 
     const handleRegister = async () => {
         try {
-            const user = await register(username, password, email);
-            navigation.navigate('MainScreen');
+            const response = await register(username, password, email);
             setUsername('');
             setPassword('');
             setEmail('');
+            if (response.message === 'Usuario registrado correctamente') {
+                alert('Usuario correctamente registrado');
+            }
+            navigation.navigate('LoginScreen');
         } catch (error) {
-            console.error('Error de registro:', error.message);
-            setUsername('');
-            setPassword('');
-            setEmail('');
+            if (error.response) {
+                switch (error.response.data.error) {
+                    case 'INVALID_EMAIL':
+                        alert('El correo electrónico no es válido');
+                        break;
+                    case 'EMPTY_USERNAME':
+                        alert('El nombre de usuario no puede estar vacío');
+                        break;
+                    case 'USERNAME_ALREADY_EXISTS':
+                        alert('El nombre de usuario ya está en uso');
+                        break;
+                    case 'PASSWORD_TOO_SHORT':
+                        alert('La contraseña debe tener al menos 8 caracteres');
+                        break;
+                    default:
+                        alert('Error de registro: ' + error.response.data.message);
+                        break;
+                }
+            } else {
+                console.error('Error de registro:', error);
+                alert('Error de registro: No se pudo conectar al servidor');
+            }
         }
     };
+
 
     const handleNavigateToLogin = () => {
         navigation.navigate('Login');

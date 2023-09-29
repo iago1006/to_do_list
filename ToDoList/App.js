@@ -10,7 +10,10 @@ const Stack = createNativeStackNavigator();
 export default function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Login">
+      <Stack.Navigator
+        initialRouteName="Login"
+        screenOptions={{ headerShown: false }} // Ocultar la barra de navegación en todas las pantallas
+      >
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="MainScreen" component={MainScreen} />
