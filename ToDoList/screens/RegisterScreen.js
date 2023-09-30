@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { register } from '../auth.js';
+import { Alert } from 'react-native';
 
 const RegisterScreen = () => {
     const [username, setUsername] = useState('');
@@ -16,35 +17,39 @@ const RegisterScreen = () => {
             setPassword('');
             setEmail('');
             if (response.message === 'Usuario registrado correctamente') {
-                alert('Usuario correctamente registrado');
+                Alert.alert('Registro exitoso', 'Usuario correctamente registrado', [
+                    { text: 'OK', onPress: () => navigation.navigate('LoginScreen') },
+                ]);
+            } else {
+                console.error('Error de registro:', response);
+                Alert.alert('Error de registro', 'No se pudo registrar al usuario.');
             }
-            navigation.navigate('LoginScreen');
         } catch (error) {
             if (error.response) {
                 switch (error.response.data.error) {
                     case 'INVALID_EMAIL':
-                        alert('El correo electrónico no es válido');
+                        Alert.alert('Error de registro', 'El correo electrónico no es válido');
                         break;
                     case 'EMPTY_USERNAME':
-                        alert('El nombre de usuario no puede estar vacío');
+                        Alert.alert('Error de registro', 'El nombre de usuario no puede estar vacío');
                         break;
                     case 'USERNAME_ALREADY_EXISTS':
-                        alert('El nombre de usuario ya está en uso');
+                        Alert.alert('Error de registro', 'El nombre de usuario ya está en uso');
                         break;
                     case 'PASSWORD_TOO_SHORT':
-                        alert('La contraseña debe tener al menos 8 caracteres');
+                        Alert.alert('Error de registro', 'La contraseña debe tener al menos 8 caracteres');
                         break;
                     default:
-                        alert('Error de registro: ' + error.response.data.message);
+                        console.error('Error de registro:', error);
+                        Alert.alert('Error de registro', 'Ocurrió un error al intentar registrarse.');
                         break;
                 }
             } else {
                 console.error('Error de registro:', error);
-                alert('Error de registro: No se pudo conectar al servidor');
+                Alert.alert('Error de registro', 'No se pudo conectar al servidor.');
             }
         }
     };
-
 
     const handleNavigateToLogin = () => {
         navigation.navigate('Login');

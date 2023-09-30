@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native'; // Importa ImageBackground
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { login } from '../auth.js';
+import { login, storeAuthToken } from '../auth.js'; // Importa la función storeAuthToken
+import { Alert } from 'react-native';
 
 const LoginScreen = () => {
     const [username, setUsername] = useState('');
@@ -11,13 +12,25 @@ const LoginScreen = () => {
     const handleLogin = async () => {
         try {
             const user = await login(username, password);
-            // Navega a la pantalla principal y reemplaza la pila de navegación
+
+            await storeAuthToken(user.token);
+
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'MainScreen' }],
             });
         } catch (error) {
-            console.error('Error de inicio de sesión:', error);
+            if (error.response) {
+                if (error.response.status === 401) {
+                    Alert.alert('Error de inicio de sesión', 'Las credenciales son incorrectas. Por favor, verifica tu nombre de usuario y contraseña.');
+                } else {
+                    console.error('Error de inicio de sesión:', error);
+                    Alert.alert('Error de inicio de sesión', 'Ocurrió un error al intentar iniciar sesión.');
+                }
+            } else {
+                console.error('Error de inicio de sesión:', error);
+                Alert.alert('Error de inicio de sesión', 'No se pudo conectar al servidor.');
+            }
             setUsername('');
             setPassword('');
         }
@@ -61,18 +74,18 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
     background: {
         flex: 1,
-        resizeMode: 'cover', // Ajusta la imagen para que cubra todo el fondo
+        resizeMode: 'cover',
     },
     container: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)', // Agrega un fondo semitransparente
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     header: {
         fontSize: 24,
         marginBottom: 20,
-        color: 'white', // Cambia el color del texto
+        color: 'white',
     },
     input: {
         width: '80%',
@@ -81,7 +94,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         marginBottom: 10,
         paddingHorizontal: 10,
-        backgroundColor: 'white', // Cambia el color del fondo de los campos de entrada
+        backgroundColor: 'white',
     },
     loginButton: {
         backgroundColor: 'blue',

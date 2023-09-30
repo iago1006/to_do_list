@@ -145,7 +145,7 @@ app.post('/login', async (req, res) => {
 app.post('/lists', authenticateToken, async (req, res) => {
     try {
         const { name } = req.body;
-        const userId = req.user.userId; // Obtenemos el user_id del token JWT
+        const userId = req.user.userId;
 
         // Insertamos la nueva lista de tareas en la base de datos con el user_id del usuario autenticado
         const insertListQuery = 'INSERT INTO task_lists (user_id, name) VALUES (?, ?)';
@@ -164,7 +164,7 @@ app.post('/lists/:listId/tasks', authenticateToken, async (req, res) => {
     try {
         const { title, description, dueDate } = req.body;
         const listId = req.params.listId;
-        const userId = req.user.userId; // Obtener el userId del token JWT
+        const userId = req.user.userId;
 
         // Verificar si la lista seleccionada pertenece al usuario
         const isListValidQuery = 'SELECT * FROM task_lists WHERE list_id = ? AND user_id = ?';
@@ -189,7 +189,7 @@ app.post('/lists/:listId/tasks', authenticateToken, async (req, res) => {
 // Ruta para obtener todas las listas de tareas de un usuario
 app.get('/lists', authenticateToken, async (req, res) => {
     try {
-        const userId = req.user.userId; // Obtenemos el user_id del token JWT
+        const userId = req.user.userId;
 
         // Consulta todas las listas de tareas del usuario
         const getListsQuery = 'SELECT * FROM task_lists WHERE user_id = ?';
@@ -206,7 +206,7 @@ app.get('/lists', authenticateToken, async (req, res) => {
 app.get('/lists/:listId', authenticateToken, async (req, res) => {
     try {
         const listId = req.params.listId;
-        const userId = req.user.userId; // Obtener el userId del token JWT
+        const userId = req.user.userId;
 
         // Verificar si la lista seleccionada pertenece al usuario
         const isListValidQuery = 'SELECT * FROM task_lists WHERE list_id = ? AND user_id = ?';
@@ -232,8 +232,8 @@ app.get('/lists/:listId', authenticateToken, async (req, res) => {
 app.put('/lists/:listId', authenticateToken, async (req, res) => {
     try {
         const listId = req.params.listId;
-        const userId = req.user.userId; // Obtener el userId del token JWT
-        const { newName } = req.body; // Nuevo nombre para la lista
+        const userId = req.user.userId;
+        const { newName } = req.body;
 
         // Verificar si la lista seleccionada pertenece al usuario
         const isListValidQuery = 'SELECT * FROM task_lists WHERE list_id = ? AND user_id = ?';
@@ -258,7 +258,7 @@ app.put('/lists/:listId', authenticateToken, async (req, res) => {
 app.delete('/lists/:listId', authenticateToken, async (req, res) => {
     try {
         const listId = req.params.listId;
-        const userId = req.user.userId; // Obtener el userId del token JWT
+        const userId = req.user.userId;
 
         // Verificar si la lista seleccionada pertenece al usuario
         const isListValidQuery = 'SELECT * FROM task_lists WHERE list_id = ? AND user_id = ?';
@@ -289,7 +289,7 @@ app.put('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) => {
         const { title, description, dueDate, completed } = req.body;
         const listId = req.params.listId;
         const taskId = req.params.taskId;
-        const userId = req.user.userId; // Obtener el userId del token JWT
+        const userId = req.user.userId;
 
         // Verificar si la tarea pertenece a la lista y al usuario
         const isTaskValidQuery = 'SELECT * FROM tasks t INNER JOIN task_lists l ON t.list_id = l.list_id WHERE t.task_id = ? AND l.user_id = ?';
@@ -315,7 +315,7 @@ app.delete('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) =
     try {
         const listId = req.params.listId;
         const taskId = req.params.taskId;
-        const userId = req.user.userId; // Obtener el userId del token JWT
+        const userId = req.user.userId;
 
         // Verificar si la tarea pertenece a la lista y al usuario
         const isTaskValidQuery = 'SELECT * FROM tasks t INNER JOIN task_lists l ON t.list_id = l.list_id WHERE t.task_id = ? AND l.user_id = ?';
