@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator, Text, TouchableOpacity, FlatList, StyleSheet, ImageBackground } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, ActivityIndicator, Text, TouchableOpacity, FlatList, StyleSheet, ImageBackground, TextInput, Modal, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { removeAuthToken, getAuthToken } from '../auth';
@@ -8,35 +8,36 @@ import axios from 'axios';
 const MainScreen = ({ navigation }) => {
   const [taskLists, setTaskLists] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddListModal, setShowAddListModal] = useState(false);
+  const [newListName, setNewListName] = useState('');
+  const apiUrl = 'http://192.168.0.14:3000/lists';
+
+  const fetchTaskLists = useCallback(async () => {
+    const authToken = await getAuthToken();
+
+    if (!authToken) {
+      navigation.navigate('Login');
+      return;
+    }
+
+    try {
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      setTaskLists(response.data);
+    } catch (error) {
+      console.error('Error al obtener las listas de tareas:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [navigation]);
 
   useEffect(() => {
-    const fetchTaskLists = async () => {
-      const authToken = await getAuthToken();
-
-      if (!authToken) {
-        navigation.navigate('Login');
-        return;
-      }
-
-      const apiUrl = 'http://192.168.0.14:3000/lists';
-
-      try {
-        const response = await axios.get(apiUrl, {
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
-        });
-
-        setTaskLists(response.data);
-      } catch (error) {
-        console.error('Error al obtener las listas de tareas:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTaskLists();
-  }, [navigation]);
+    fetchTaskLists(); // Llamar a fetchTaskLists al cargar el componente
+  }, [fetchTaskLists]);
 
   const handleLogout = async () => {
     await removeAuthToken();
@@ -50,7 +51,40 @@ const MainScreen = ({ navigation }) => {
         <Text style={styles.loadingText}>Cargando...</Text>
       </View>
     );
-  }  
+  }
+
+  const handleAddList = async () => {
+    setShowAddListModal(true); // Mostrar la interfaz de agregar lista
+  };
+
+  const handleCreateList = async () => {
+    try {
+      const authToken = await getAuthToken();
+      if (!authToken) {
+        navigation.navigate('Login');
+        return;
+      }
+
+      const newListData = {
+        name: newListName,
+      };
+
+      const response = await axios.post(apiUrl, newListData, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      // Si la lista se crea correctamente, actualiza la lista de tareas y cierra la interfaz de agregar lista
+      if (response.status === 201) {
+        fetchTaskLists();
+        setShowAddListModal(false);
+        setNewListName('');
+      }
+    } catch (error) {
+      console.error('Error al crear la lista de tareas:', error);
+    }
+  };
 
   return (
     <ImageBackground
@@ -67,16 +101,59 @@ const MainScreen = ({ navigation }) => {
         data={taskLists}
         keyExtractor={(item) => item.list_id.toString()}
         renderItem={({ item }) => (
-          <TouchableOpacity
-            style={styles.listItem}
-            onPress={() => {
-              navigation.navigate('TaskList', { listId: item.id });
-            }}
-          >
-            <Text>{item.name}</Text>
-          </TouchableOpacity>
+          <View style={styles.listItemContainer}>
+            <TouchableOpacity
+              style={styles.listItem}
+              onPress={() => {
+                navigation.navigate('TaskList', { listId: item.id });
+              }}
+            >
+              <Text>{item.name}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => handleDeleteList(item.list_id)}
+            >
+              <Icon name="trash" size={24} color="#ff0000" />
+            </TouchableOpacity>
+          </View>
         )}
       />
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={handleAddList}
+      >
+        <Text style={styles.addButtonText}>Agregar Lista</Text>
+      </TouchableOpacity>
+      <Modal
+        visible={showAddListModal}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Agregar Lista</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Nombre de la lista"
+              value={newListName}
+              onChangeText={(text) => setNewListName(text)}
+            />
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={handleCreateList}
+            >
+              <Text style={styles.createButtonText}>Crear Lista</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowAddListModal(false)}
+            >
+              <Text style={styles.cancelButtonText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </ImageBackground>
   );
 };
@@ -87,6 +164,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     justifyContent: 'center',
     paddingTop: 50,
+    paddingBottom: 16,
     paddingHorizontal: 30,
   },
   header: {
@@ -105,18 +183,67 @@ const styles = StyleSheet.create({
   logoutButton: {
     padding: 8,
   },
+  listItemContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   listItem: {
+    flex: 1,
     padding: 16,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    marginBottom: 8,
     borderRadius: 8,
+  },
+  deleteButton: {
+    padding: 16,
+  },
+  addButton: {
+    marginVertical: 16,
+    padding: 16,
+    backgroundColor: '#007aff',
+    alignItems: 'center',
+    borderRadius: 8,
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 8,
+    width: '80%',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 4,
+    padding: 10,
+    marginBottom: 10,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 });
 
