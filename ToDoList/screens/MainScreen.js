@@ -36,7 +36,7 @@ const MainScreen = ({ navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    fetchTaskLists(); // Llamar a fetchTaskLists al cargar el componente
+    fetchTaskLists();
   }, [fetchTaskLists]);
 
   const handleLogout = async () => {
@@ -54,10 +54,20 @@ const MainScreen = ({ navigation }) => {
   }
 
   const handleAddList = async () => {
-    setShowAddListModal(true); // Mostrar la interfaz de agregar lista
+    setShowAddListModal(true);
   };
 
   const handleCreateList = async () => {
+    if (!newListName.trim()) {
+      alert('El nombre de la lista no puede estar vacío');
+      return;
+    }
+
+    if (taskLists.some(list => list.name === newListName)) {
+      alert('Ya existe una lista con ese nombre');
+      return;
+    }
+
     try {
       const authToken = await getAuthToken();
       if (!authToken) {
@@ -75,7 +85,6 @@ const MainScreen = ({ navigation }) => {
         },
       });
 
-      // Si la lista se crea correctamente, actualiza la lista de tareas y cierra la interfaz de agregar lista
       if (response.status === 201) {
         fetchTaskLists();
         setShowAddListModal(false);
@@ -85,6 +94,32 @@ const MainScreen = ({ navigation }) => {
       console.error('Error al crear la lista de tareas:', error);
     }
   };
+
+  const handleDeleteList = async (listId) => {
+    try {
+      const authToken = await getAuthToken();
+      if (!authToken) {
+        navigation.navigate('Login');
+        return;
+      }
+
+      const response = await axios.delete(`${apiUrl}/${listId}`, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
+
+      if (response.status === 200) {
+        // Eliminar la lista del estado taskLists
+        setTaskLists((prevTaskLists) =>
+          prevTaskLists.filter((list) => list.list_id !== listId)
+        );
+      }
+    } catch (error) {
+      console.error('Error al eliminar la lista de tareas:', error);
+    }
+  };
+
 
   return (
     <ImageBackground

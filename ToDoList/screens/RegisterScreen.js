@@ -18,7 +18,7 @@ const RegisterScreen = () => {
             setEmail('');
             if (response.message === 'Usuario registrado correctamente') {
                 Alert.alert('Registro exitoso', 'Usuario correctamente registrado', [
-                    { text: 'OK', onPress: () => navigation.navigate('LoginScreen') },
+                    { text: 'OK', onPress: () => navigation.navigate('Login') },
                 ]);
             } else {
                 console.error('Error de registro:', response);
