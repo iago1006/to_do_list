@@ -140,7 +140,7 @@ const MainScreen = ({ navigation }) => {
             <TouchableOpacity
               style={styles.listItem}
               onPress={() => {
-                navigation.navigate('TaskList', { listId: item.id });
+                navigation.navigate('TaskList', { listId: item.list_id, listName: item.name });
               }}
             >
               <Text>{item.name}</Text>
