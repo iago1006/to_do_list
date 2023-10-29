@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { login, storeAuthToken } from '../auth.js'; // Importa la función storeAuthToken
+import { login, storeAuthToken } from '../auth.js';
 import { Alert } from 'react-native';
 
 const LoginScreen = () => {

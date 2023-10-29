@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, ActivityIndicator, Text, TouchableOpacity, FlatList, StyleSheet, ImageBackground, TextInput, Modal, Button } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
-import { removeAuthToken, getAuthToken } from '../auth';
+import { removeAuthToken, getAuthToken, API_URL } from '../auth';
 import axios from 'axios';
 
 const MainScreen = ({ navigation }) => {
@@ -10,7 +10,6 @@ const MainScreen = ({ navigation }) => {
   const [loading, setLoading] = useState(true);
   const [showAddListModal, setShowAddListModal] = useState(false);
   const [newListName, setNewListName] = useState('');
-  const apiUrl = 'http://192.168.0.14:3000/lists';
 
   const fetchTaskLists = useCallback(async () => {
     const authToken = await getAuthToken();
@@ -21,7 +20,7 @@ const MainScreen = ({ navigation }) => {
     }
 
     try {
-      const response = await axios.get(apiUrl, {
+      const response = await axios.get(`${API_URL}/lists`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -79,7 +78,7 @@ const MainScreen = ({ navigation }) => {
         name: newListName,
       };
 
-      const response = await axios.post(apiUrl, newListData, {
+      const response = await axios.post(`${API_URL}/lists`, newListData, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -103,7 +102,7 @@ const MainScreen = ({ navigation }) => {
         return;
       }
 
-      const response = await axios.delete(`${apiUrl}/${listId}`, {
+      const response = await axios.delete(`${API_URL}/lists/${listId}`, {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
