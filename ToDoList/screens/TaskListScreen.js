@@ -107,6 +107,40 @@ const TaskListScreen = ({ route }) => {
     }
   };
 
+  const handleCompleteTask = async (taskId, isCompleted) => {
+    try {
+      const authToken = await getAuthToken();
+      if (!authToken) {
+        navigation.navigate('Login');
+        return;
+      }
+
+      const updateTaskData = {
+        completed: isCompleted,
+      };
+
+      const response = await axios.patch(
+        `${API_URL}/lists/${listId}/tasks/${taskId}`,
+        updateTaskData,
+        {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        // Actualizar la tarea como completada en el estado "tasks"
+        setTasks((prevTasks) =>
+          prevTasks.map((task) =>
+            task.task_id === taskId ? { ...task, completed: isCompleted } : task
+          )
+        );
+      }
+    } catch (error) {
+      console.error('Error al actualizar la tarea:', error);
+    }
+  };
 
   return (
     <ImageBackground
@@ -128,21 +162,36 @@ const TaskListScreen = ({ route }) => {
             keyExtractor={(item) => item.task_id.toString()}
             renderItem={({ item }) => (
               <View style={styles.taskContainer}>
-                <Text style={styles.taskTitle}>{item.title}</Text>
-                <Text>{item.description}</Text>
-                <Text>
-                  {new Date(item.due_date).toLocaleDateString('es-PE', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                  })}
-                </Text>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => handleDeleteTask(item.task_id)}
-                >
-                  <Icon name="trash" size={24} color="#ff0000" />
-                </TouchableOpacity>
+                <View style={styles.taskInfo}>
+                  <Text style={styles.taskTitle}>{item.title}</Text>
+                  <Text style={styles.taskDescription}>{item.description}</Text>
+                  <Text style={styles.taskDueDate}>
+                    {new Date(item.due_date).toLocaleDateString('es-PE', {
+                      day: '2-digit',
+                      month: '2-digit',
+                      year: 'numeric',
+                    })}
+                  </Text>
+                </View>
+                <View style={styles.taskActions}>
+                  <TouchableOpacity
+                    style={[
+                      styles.completeButton,
+                      item.completed && styles.completedButton,
+                    ]}
+                    onPress={() => handleCompleteTask(item.task_id, !item.completed)}
+                  >
+                    {item.completed ? (
+                      <Icon name="check" size={24} color="#00FF00" />
+                    ) : null}
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteTask(item.task_id)}
+                  >
+                    <Icon name="trash" size={24} color="#ff0000" />
+                  </TouchableOpacity>
+                </View>
               </View>
             )}
           />
@@ -226,17 +275,30 @@ const styles = StyleSheet.create({
     marginLeft: 16,
   },
   taskContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between', // Alinea los elementos a la derecha
+    alignItems: 'center',
     padding: 16,
     marginBottom: 8,
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     borderRadius: 8,
+  },
+  taskInfo: {
+    flex: 1, // Ocupa todo el espacio restante
+  },
+  taskButtons: {
+    flexDirection: 'row', // Botones en la misma fila
   },
   taskTitle: {
     fontSize: 18,
     fontWeight: 'bold',
   },
   deleteButton: {
-    padding: 16,
+    marginLeft: 8,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   addButton: {
     marginVertical: 16,
@@ -282,6 +344,37 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+  },
+  taskActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  taskTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  taskDescription: {
+    marginBottom: 8,
+  },
+  taskDueDate: {
+    color: '#555',
+    marginBottom: 8,
+  },
+  taskActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  completeButton: {
+    marginLeft: 8,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: '#007aff',
+    borderRadius: 4,
+    width: 40,
+    height: 40,
+  },
+  completeButtonText: {
+    color: '#fff',
   },
 });
 

@@ -284,10 +284,9 @@ app.delete('/lists/:listId', authenticateToken, async (req, res) => {
 });
 
 // Ruta para actualizar una tarea
-app.put('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) => {
+app.patch('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) => {
     try {
-        const { title, description, dueDate, completed } = req.body;
-        const listId = req.params.listId;
+        const { completed } = req.body;
         const taskId = req.params.taskId;
         const userId = req.user.userId;
 
@@ -299,9 +298,9 @@ app.put('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) => {
             return res.status(403).json({ message: 'No tienes permiso para actualizar esta tarea.' });
         }
 
-        // Actualizar la tarea en la base de datos
-        const updateTaskQuery = 'UPDATE tasks SET title = ?, description = ?, due_date = ?, completed = ? WHERE task_id = ?';
-        await db.promise().query(updateTaskQuery, [title, description, dueDate, completed, taskId]);
+        // Actualizar el campo "completed" de la tarea en la base de datos
+        const updateTaskQuery = 'UPDATE tasks SET completed = ? WHERE task_id = ?';
+        await db.promise().query(updateTaskQuery, [completed, taskId]);
 
         res.status(200).json({ message: 'Tarea actualizada correctamente' });
     } catch (error) {
@@ -309,6 +308,7 @@ app.put('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) => {
         res.status(500).json({ message: 'Error al actualizar la tarea' });
     }
 });
+
 
 // Ruta para eliminar una tarea
 app.delete('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) => {
