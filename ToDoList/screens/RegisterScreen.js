@@ -57,26 +57,26 @@ const RegisterScreen = () => {
 
     return (
         <ImageBackground
-            source={require('../images/background.jpg')}
+            source={require('../images/fondo.png')}
             style={styles.background}
         >
             <View style={styles.container}>
-                <Text style={styles.header}>Registrarse</Text>
+                <Text style={styles.header}>REGÍSTRATE</Text>
+                <Text style={styles.label}>Nombre de Usuario</Text>
                 <TextInput
-                    placeholder="Nombre de Usuario"
                     value={username}
                     onChangeText={text => setUsername(text)}
                     style={styles.input}
                 />
+                <Text style={styles.label}>Contraseña</Text>
                 <TextInput
-                    placeholder="Contraseña"
                     value={password}
                     onChangeText={text => setPassword(text)}
                     secureTextEntry
                     style={styles.input}
                 />
+                <Text style={styles.label}>Correo Electrónico</Text>
                 <TextInput
-                    placeholder="Correo Electrónico"
                     value={email}
                     onChangeText={text => setEmail(text)}
                     style={styles.input}
@@ -84,9 +84,13 @@ const RegisterScreen = () => {
                 <TouchableOpacity onPress={handleRegister} style={styles.registerButton}>
                     <Text style={styles.buttonText}>Registrarse</Text>
                 </TouchableOpacity>
-                <Text style={styles.loginText} onPress={handleNavigateToLogin}>
-                    ¿Ya tienes una cuenta? Inicia sesión aquí
+                <Text style={styles.loginText}>
+                    ¿Ya tienes una cuenta? {' '}
+                    <Text style={styles.loginLink} onPress={handleNavigateToLogin}>
+                        Inicia sesión aquí
+                    </Text>
                 </Text>
+
             </View>
         </ImageBackground>
     );
@@ -101,39 +105,52 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
     },
     header: {
-        fontSize: 24,
-        marginBottom: 20,
-        color: 'white',
+        fontSize: 30,
+        marginBottom: 30,
+        fontWeight: 'bold',
+        color: '#F9A11B',
+    },
+    label: {
+        width: '80%',
+        fontSize: 13,
+        paddingTop: 17,
+        marginBottom: 8,
     },
     input: {
         width: '80%',
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 10,
-        paddingHorizontal: 10,
-        backgroundColor: 'white',
+        height: 45,
+        borderColor: '#ECE9E9',
+        marginBottom: 5,
+        paddingHorizontal: 15,
+        backgroundColor: '#ECE9E9',
+        borderRadius: 5,
     },
     registerButton: {
-        backgroundColor: 'green',
-        padding: 10,
+        backgroundColor: '#F9A11B',
+        padding: 15,
         borderRadius: 5,
         width: '80%',
         alignItems: 'center',
+        marginTop: 30,
     },
     buttonText: {
-        color: 'white',
+        color: 'black',
+        fontWeight: 'bold',
         fontSize: 16,
     },
     loginText: {
-        marginTop: 20,
-        color: 'blue',
+        marginTop: 30,
+        color: 'black',
         fontSize: 16,
-        textDecorationLine: 'underline',
     },
+    loginLink: {
+        fontWeight: 'bold',
+        paddingRight: 50,
+        color: '#F9A11B',
+        textDecorationLine: 'underline',
+    }
 });
 
 export default RegisterScreen;
