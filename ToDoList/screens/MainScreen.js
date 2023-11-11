@@ -122,14 +122,14 @@ const MainScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../images/background.jpg')}
+      source={require('../images/fondo.png')}
       style={styles.container}
     >
       <View style={styles.header}>
         <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Icon name="sign-out" size={24} color="#333" />
+          <Icon name="sign-out" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerText}>Listas de Tareas</Text>
+        <Text style={styles.headerText}>LISTA DE TAREAS</Text>
       </View>
       <FlatList
         data={taskLists}
@@ -173,18 +173,20 @@ const MainScreen = ({ navigation }) => {
               value={newListName}
               onChangeText={(text) => setNewListName(text)}
             />
-            <TouchableOpacity
-              style={styles.createButton}
-              onPress={handleCreateList}
-            >
-              <Text style={styles.createButtonText}>Crear Lista</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.cancelButton}
-              onPress={() => setShowAddListModal(false)}
-            >
-              <Text style={styles.cancelButtonText}>Cancelar</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowAddListModal(false)}
+              >
+                <Text style={styles.cancelButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.createButton}
+                onPress={handleCreateList}
+              >
+                <Text style={styles.createButtonText}>Crear Lista</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -204,15 +206,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    marginBottom: 18,
+    backgroundColor: '#F9A11B',
     padding: 16,
-    borderRadius: 8,
+    borderRadius: 5,
   },
   headerText: {
     fontSize: 24,
     fontWeight: 'bold',
     marginLeft: 16,
+    color: 'white',
   },
   logoutButton: {
     padding: 8,
@@ -225,10 +228,10 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flex: 1,
-    padding: 16,
+    padding: 20,
     borderBottomWidth: 1,
     borderBottomColor: '#ccc',
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: '#ECE9E9',
     borderRadius: 8,
   },
   deleteButton: {
@@ -237,13 +240,13 @@ const styles = StyleSheet.create({
   addButton: {
     marginVertical: 16,
     padding: 16,
-    backgroundColor: '#007aff',
+    backgroundColor: '#F9A11B',
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 5,
   },
   addButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: 'black',
+    fontSize: 20,
     fontWeight: 'bold',
   },
   loadingContainer: {
@@ -269,8 +272,8 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+    marginTop: 10,
+    backgroundColor: '#ECE9E9',
     borderRadius: 4,
     padding: 10,
     marginBottom: 10,
@@ -279,6 +282,36 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  buttonContainer: {
+    marginTop: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  cancelButton: {
+    padding: 14,
+    backgroundColor: 'rgba(251,0,0,0.63)',
+    color: 'white',
+    borderRadius: 6,
+    width: '45%',
+  },
+  createButton: {
+    backgroundColor: '#F9A11B',
+    padding: 14,
+    borderRadius: 6,
+    width: '45%',
+    fontWeight: 'bold',
+  },
+  cancelButtonText: {
+    fontSize: 15,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+  createButtonText: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    textAlign: 'center'
+  }
 });
 
 export default MainScreen;
