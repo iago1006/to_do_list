@@ -142,13 +142,13 @@ const MainScreen = ({ navigation }) => {
                 navigation.navigate('TaskList', { listId: item.list_id, listName: item.name });
               }}
             >
-              <Text>{item.name}</Text>
+              <Text style={styles.listItemText}>{item.name}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.deleteButton}
               onPress={() => handleDeleteList(item.list_id)}
             >
-              <Icon name="trash" size={24} color="#ff0000" />
+              <Icon name="trash" size={30} color="#ff0000" />
             </TouchableOpacity>
           </View>
         )}
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 18,
-    backgroundColor: '#F9A11B',
+    backgroundColor: '#3e4bed',
     padding: 16,
     borderRadius: 5,
   },
@@ -225,14 +225,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
+    marginTop: 10,
   },
   listItem: {
     flex: 1,
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    padding: 25,
     backgroundColor: '#ECE9E9',
     borderRadius: 8,
+  },
+  listItemText: {
+    fontSize: 16,
   },
   deleteButton: {
     padding: 16,
@@ -240,12 +242,12 @@ const styles = StyleSheet.create({
   addButton: {
     marginVertical: 16,
     padding: 16,
-    backgroundColor: '#F9A11B',
+    backgroundColor: '#546DF8',
     alignItems: 'center',
     borderRadius: 5,
   },
   addButtonText: {
-    color: 'black',
+    color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
   },
@@ -295,7 +297,7 @@ const styles = StyleSheet.create({
     width: '45%',
   },
   createButton: {
-    backgroundColor: '#F9A11B',
+    backgroundColor: '#546DF8',
     padding: 14,
     borderRadius: 6,
     width: '45%',
@@ -308,6 +310,7 @@ const styles = StyleSheet.create({
     textAlign: 'center'
   },
   createButtonText: {
+    color: 'white',
     fontSize: 15,
     fontWeight: 'bold',
     textAlign: 'center'

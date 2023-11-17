@@ -159,7 +159,7 @@ const TaskListScreen = ({ route }) => {
 
   return (
     <ImageBackground
-      source={require('../images/fondomessi3.jpg')}
+      source={require('../images/fondo4.png')}
       style={styles.container}
     >
       <View style={styles.container}>
@@ -325,7 +325,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-    backgroundColor: '#F9A11B',
+    backgroundColor: '#3038d2',
     padding: 20,
     borderRadius: 4,
   },
@@ -363,14 +363,14 @@ const styles = StyleSheet.create({
   addButton: {
     marginVertical: 16,
     padding: 16,
-    backgroundColor: '#F9A11B',
+    backgroundColor: '#3e4bed',
     alignItems: 'center',
     borderRadius: 5,
   },
   addButtonText: {
-    color: 'black',
+    color: 'white',
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: 'medium',
   },
   loadingContainer: {
     flex: 1,
@@ -444,11 +444,11 @@ const styles = StyleSheet.create({
     marginLeft: 8,
     padding: 8,
     borderWidth: 1,
-    borderColor: '#F9A11B',
+    borderColor: '#546DF8',
     borderRadius: 4,
     width: 40,
     height: 40,
-    backgroundColor: '#F9A11B',
+    backgroundColor: '#546DF8',
   },
   completeButtonText: {
     color: '#fff',
@@ -483,7 +483,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     marginTop: 10,
-    backgroundColor: '#F9A11B',
+    backgroundColor: '#3e4bed',
     padding: 12,
     borderRadius: 5,
     width:'45%',

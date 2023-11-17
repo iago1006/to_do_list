@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ImageBackground } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { login, storeAuthToken } from '../auth.js';
 import { Alert } from 'react-native';
+import * as Font from 'expo-font';
 
 const LoginScreen = () => {
     const [username, setUsername] = useState('');
@@ -39,7 +40,25 @@ const LoginScreen = () => {
     const handleNavigateToRegister = () => {
         navigation.navigate('Register');
     };
-
+    const [fontsLoaded, setFontsLoad] = useState(false);
+    useEffect(() => {
+        if (!fontsLoaded) {
+            loadFonts();
+        }
+    });
+    const loadFonts = async () => {
+        await Font.loadAsync({
+            'poppins-thin': require('../assets/fonts/Poppins-Thin.ttf'),
+            'poppins-regular': require('../assets/fonts/Poppins-Regular.ttf'),
+            'poppins-medium': require('../assets/fonts/Poppins-Medium.ttf'),
+            'poppins-semibold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+            'poppins-bold': require('../assets/fonts/Poppins-Bold.ttf'),
+        });
+        setFontsLoad(true)
+    }
+    if (!fontsLoaded) {
+        return (<View />);
+    }
     return (
         <ImageBackground
             source={require('../images/fondo.png')}
@@ -89,8 +108,8 @@ const styles = StyleSheet.create({
     header: {
         fontSize: 30,
         marginBottom: 30,
-        fontWeight: 'bold',
-        color: '#F9A11B',
+        fontFamily: 'poppins-bold',
+        color: '#3038d2',
         textTransform: 'uppercase',
     },
     label: {
@@ -98,8 +117,10 @@ const styles = StyleSheet.create({
         fontSize: 13,
         paddingTop: 17,
         marginBottom: 8,
+        fontFamily: 'poppins-medium',
     },
     input: {
+        fontFamily: 'poppins-regular',
         width: '80%',
         height: 45,
         borderColor: '#ECE9E9',
@@ -109,7 +130,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     loginButton: {
-        backgroundColor: '#F9A11B',
+        backgroundColor: '#546df8',
         padding: 15,
         borderRadius: 5,
         width: '80%',
@@ -117,19 +138,20 @@ const styles = StyleSheet.create({
         marginTop: 30,
     },
     buttonText: {
-        color: 'black',
-        fontWeight: 'bold',
+        color: 'white',
+        fontFamily: 'poppins-regular',
         fontSize: 16,
     },
     registerText: {
+        fontFamily: 'poppins-regular',
         marginTop: 30,
         color: 'black',
         fontSize: 16,
     },
     registerLink: {
-        fontWeight: 'bold',
+        fontFamily: 'poppins-bold',
         paddingRight: 50,
-        color: '#F9A11B',
+        color: '#546df8',
         textDecorationLine: 'underline',
     }
 });

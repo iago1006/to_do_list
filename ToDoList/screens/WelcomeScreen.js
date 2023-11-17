@@ -14,6 +14,11 @@ const WelcomeScreen = ({ navigation }) => {
             'quicksand-bold': require('../assets/fonts/Quicksand_Bold.otf'),
             'quicksand-book': require('../assets/fonts/Quicksand_Book.otf'),
             'quicksand-light': require('../assets/fonts/Quicksand_Light.otf'),
+            'poppins-thin': require('../assets/fonts/Poppins-Thin.ttf'),
+            'poppins-regular': require('../assets/fonts/Poppins-Regular.ttf'),
+            'poppins-medium': require('../assets/fonts/Poppins-Medium.ttf'),
+            'poppins-semibold': require('../assets/fonts/Poppins-SemiBold.ttf'),
+            'poppins-bold': require('../assets/fonts/Poppins-Bold.ttf'),
         });
         setFontsLoad(true)
     }
@@ -22,11 +27,11 @@ const WelcomeScreen = ({ navigation }) => {
     }
     return (
         <ImageBackground
-            source={require('../images/fondo2.png')}
+            source={require('../images/fondo4.png')}
             style={styles.background}
         >
             <View style={styles.container}>
-                <Image source={require('../images/welcome.png')} style={styles.image} />
+                <Image source={require('../images/welcome2.png')} style={styles.image} />
                 <Text style={styles.titleWelcome}>ToDoWi</Text>
                 <Text style={styles.parrafoWelcome}>"Organiza tu día, cumple tus metas. ToDoWi, tu aliado en la productividad."</Text>
                 <TouchableOpacity onPress={() => navigation.navigate('Login')} style={styles.welcomeButton}>
@@ -50,35 +55,36 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     titleWelcome: {
-        fontFamily: 'quicksand-bold',
-        textShadowColor: '#202DA7',
+        fontFamily: 'poppins-bold',
+        textShadowColor: '#98A7F8',
         textShadowOffset: { width: 2, height: 4 },
         textShadowRadius: 1,
-        fontSize: 80,
-        marginTop: 20,
+        fontSize: 70,
+        marginTop: 30,
         marginBottom: 10,
         color: '#102D4B',
     },
     parrafoWelcome: {
-        paddingLeft: 40,
-        paddingRight: 40,
+        fontFamily: 'poppins-regular',
+        paddingLeft: 25,
+        paddingRight: 25,
         textAlign: 'center',
         fontSize: 18,
-        marginTop: 12,
-        marginBottom: 12,
+        marginTop: 10,
+        marginBottom: 15,
     },
     welcomeButton: {
-        backgroundColor: '#F9A11B',
+        backgroundColor: '#546DF8',
         padding: 15,
         borderRadius: 5,
         width: '80%',
         alignItems: 'center',
-        marginTop: 30,
+        marginTop: 25,
     },
     buttonText: {
-        color: 'black',
-        fontWeight: 'bold',
-        fontSize: 19,
+        fontFamily: 'poppins-regular',
+        color: 'white',
+        fontSize: 16,
     }
 });
 
