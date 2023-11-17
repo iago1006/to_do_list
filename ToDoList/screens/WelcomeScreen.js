@@ -52,9 +52,9 @@ const styles = StyleSheet.create({
     titleWelcome: {
         fontFamily: 'quicksand-bold',
         textShadowColor: '#202DA7',
-        textShadowOffset: { width: 0, height: 4 },
-        textShadowRadius: 3,
-        fontSize: 60,
+        textShadowOffset: { width: 2, height: 4 },
+        textShadowRadius: 1,
+        fontSize: 80,
         marginTop: 20,
         marginBottom: 10,
         color: '#102D4B',

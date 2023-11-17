@@ -4,6 +4,8 @@ import axios from 'axios';
 import { getAuthToken, API_URL } from '../auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
 
 const TaskListScreen = ({ route }) => {
   const { listId, listName } = route.params;
@@ -12,9 +14,17 @@ const TaskListScreen = ({ route }) => {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
-  const [newTaskDueDate, setNewTaskDueDate] = useState('');
+  /*const [newTaskDueDate, setNewTaskDueDate] = useState('');*/ //Cambio Realizado
+  const [date, setDate] = useState(new Date()); // Nuevo estado para la fecha
+  const [show, setShow] = useState(false); // Nuevo estado para mostrar/ocultar el selector de fecha
   const navigation = useNavigation();
 
+  //Cambio Realizado
+  const onChange = (event, selectedDate) => {
+    const currentDate = selectedDate || date;
+    setShow(Platform.OS === 'ios');
+    setDate(currentDate);
+  };
   // Función para obtener las tareas de la lista
   const fetchTasks = async () => {
     const authToken = await getAuthToken();
@@ -46,8 +56,13 @@ const TaskListScreen = ({ route }) => {
   };
 
   const handleCreateTask = async () => {
-    if (!newTaskTitle.trim() || !newTaskDescription.trim() || !newTaskDueDate.trim()) {
+    if (!newTaskTitle.trim() || !newTaskDescription.trim()) {
       alert('Los campos no pueden estar vacíos');
+      return;
+    }
+    //Comprueba si la fecha seleccionada es anterior a la fecha actual
+    if(date < new Date()){
+      alert('La fecha de vencimiento no puede ser anterior a la fecha actual');
       return;
     }
 
@@ -61,7 +76,8 @@ const TaskListScreen = ({ route }) => {
       const newTaskData = {
         title: newTaskTitle,
         description: newTaskDescription,
-        dueDate: newTaskDueDate,
+        /*dueDate: newTaskDueDate,*/ //Cambio Realizado
+        dueDate: date.toISOString().split('T')[0],
       };
 
       const response = await axios.post(`${API_URL}/lists/${listId}/tasks`, newTaskData, {
@@ -75,7 +91,6 @@ const TaskListScreen = ({ route }) => {
         setShowAddTaskModal(false);
         setNewTaskTitle('');
         setNewTaskDescription('');
-        setNewTaskDueDate('');
       }
     } catch (error) {
       console.error('Error al crear la tarea:', error);
@@ -144,13 +159,13 @@ const TaskListScreen = ({ route }) => {
 
   return (
     <ImageBackground
-      source={require('../images/background.jpg')}
+      source={require('../images/fondomessi3.jpg')}
       style={styles.container}
     >
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.navigate('MainScreen')}>
-            <Icon name="arrow-left" size={24} color="#333" />
+            <Icon name="arrow-left" size={24} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerText}>{listName}</Text>
         </View>
@@ -182,14 +197,14 @@ const TaskListScreen = ({ route }) => {
                     onPress={() => handleCompleteTask(item.task_id, !item.completed)}
                   >
                     {item.completed ? (
-                      <Icon name="check" size={24} color="#00FF00" />
+                      <Icon name="check" size={24} color="white" />
                     ) : null}
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.deleteButton}
                     onPress={() => handleDeleteTask(item.task_id)}
                   >
-                    <Icon name="trash" size={24} color="#ff0000" />
+                    <Icon name="trash" size={24} color="white" />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -202,6 +217,7 @@ const TaskListScreen = ({ route }) => {
         >
           <Text style={styles.addButtonText}>Agregar Tarea</Text>
         </TouchableOpacity>
+        {/* Modal de Agregar Tarea */}
         <Modal
           visible={showAddTaskModal}
           animationType="slide"
@@ -210,41 +226,85 @@ const TaskListScreen = ({ route }) => {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Agregar Tarea</Text>
+
+              <Text style={styles.inputLabel}>Título</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Título de la tarea"
                 value={newTaskTitle}
                 onChangeText={(text) => setNewTaskTitle(text)}
               />
+
+              <Text style={styles.inputLabel}>Descripción</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Descripción de la tarea"
                 value={newTaskDescription}
                 onChangeText={(text) => setNewTaskDescription(text)}
               />
+              {/* Cambio Realizado */}
+              <Text style={styles.inputLabel}>Fecha de vencimiento</Text>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.dateInput}
+                  value={date.toISOString().split('T')[0]}
+                  editable={false} // Esto hace que el TextInput no sea editable
+                />
+                <TouchableOpacity
+                  style={styles.datePickerButton}
+                  onPress={() => setShow(true)}
+                >
+                  <Text>Seleccionar fecha</Text>
+                </TouchableOpacity>
+              </View>
+              {show && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode={'date'}
+                  display="default"
+                  onChange={onChange}
+                />
+              )}
+              {/*<Text style={styles.inputLabel}>Fecha de vencimiento</Text>
+              <TouchableOpacity onPress={() => setShow(true)}>
+                <Text>{date.toISOString().split('T')[0]}</Text>
+              </TouchableOpacity>
+              {show && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={date}
+                  mode={'date'}
+                  display="default"
+                  onChange={onChange}
+                />
+              )}*/}
+
+              {/*<Text style={styles.inputLabel}>Fecha</Text>
               <TextInput
                 style={styles.input}
                 placeholder="Fecha de vencimiento (YYYY-MM-DD)"
                 value={newTaskDueDate}
                 onChangeText={(text) => setNewTaskDueDate(text)}
-              />
-              <TouchableOpacity
-                style={styles.createButton}
-                onPress={handleCreateTask}
-              >
-                <Text style={styles.createButtonText}>Crear Tarea</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => {
-                  setShowAddTaskModal(false);
-                  setNewTaskTitle('');
-                  setNewTaskDescription('');
-                  setNewTaskDueDate('');
-                }}
-              >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
-              </TouchableOpacity>
+              />*/}
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => {
+                    setShowAddTaskModal(false);
+                    setNewTaskTitle('');
+                    setNewTaskDescription('');
+                  }}
+                >
+                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.createButton}
+                  onPress={handleCreateTask}
+                >
+                  <Text style={styles.createButtonText}>Crear Tarea</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         </Modal>
@@ -265,23 +325,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    padding: 16,
-    borderRadius: 8,
+    backgroundColor: '#F9A11B',
+    padding: 20,
+    borderRadius: 4,
   },
   headerText: {
-    fontSize: 24,
+    fontSize: 25,
     fontWeight: 'bold',
     marginLeft: 16,
+    color: 'white'
   },
   taskContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between', // Alinea los elementos a la derecha
     alignItems: 'center',
     padding: 16,
+    marginTop: 10,
     marginBottom: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
-    borderRadius: 8,
+    backgroundColor: '#ECE9E9',
+    borderRadius: 5,
   },
   taskInfo: {
     flex: 1, // Ocupa todo el espacio restante
@@ -289,27 +351,25 @@ const styles = StyleSheet.create({
   taskButtons: {
     flexDirection: 'row', // Botones en la misma fila
   },
-  taskTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
   deleteButton: {
     marginLeft: 8,
     width: 40,
     height: 40,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: '#ff0000',
+    borderRadius: 5,
   },
   addButton: {
     marginVertical: 16,
     padding: 16,
-    backgroundColor: '#007aff',
+    backgroundColor: '#F9A11B',
     alignItems: 'center',
-    borderRadius: 8,
+    borderRadius: 5,
   },
   addButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    color: 'black',
+    fontSize: 20,
     fontWeight: 'bold',
   },
   loadingContainer: {
@@ -332,13 +392,17 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 20,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginTop: 5,
+    marginBottom: 15,
+  },
+  inputLabel: {
+    marginTop: 8,
+    marginBottom: 8,
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 4,
-    padding: 10,
+    backgroundColor: '#ECE9E9',
+    borderRadius: 5,
+    padding: 12,
     marginBottom: 10,
   },
   modalButtons: {
@@ -350,31 +414,83 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   taskTitle: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
+    textDecorationLine: 'underline',
+    marginTop: 5,
+    marginBottom: 5,
   },
   taskDescription: {
+    marginTop: 5,
     marginBottom: 8,
+    marginRight: 9,
+    textAlign: 'justify',
+    fontSize: 16,
   },
   taskDueDate: {
     color: '#555',
-    marginBottom: 8,
+    marginTop: 5,
+    marginBottom: 5,
   },
   taskActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
+  buttonRow: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+},
   completeButton: {
     marginLeft: 8,
     padding: 8,
     borderWidth: 1,
-    borderColor: '#007aff',
+    borderColor: '#F9A11B',
     borderRadius: 4,
     width: 40,
     height: 40,
+    backgroundColor: '#F9A11B',
   },
   completeButtonText: {
     color: '#fff',
+  },
+  
+  inputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 5,
+    padding: 10,
+    backgroundColor: '#ECE9E9',
+    marginBottom: 10,
+  },
+  dateInput: {
+    flex: 1,
+  },
+  datePickerButton: {
+    padding: 7,
+    backgroundColor: 'white',
+    borderRadius: 3,
+  },
+  cancelButton: {
+    marginTop: 10,
+    backgroundColor: 'rgba(251,0,0,0.63)',
+    padding: 12,
+    borderRadius: 5,
+    width: '45%',
+  },
+  cancelButtonText: {
+    color: 'white',
+    textAlign:'center',
+  },
+  createButton: {
+    marginTop: 10,
+    backgroundColor: '#F9A11B',
+    padding: 12,
+    borderRadius: 5,
+    width:'45%',
+  },
+  createButtonText: {
+    color: 'white',
+    textAlign: 'center',
   },
 });
 
