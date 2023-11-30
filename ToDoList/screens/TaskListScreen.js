@@ -14,9 +14,10 @@ const TaskListScreen = ({ route }) => {
   const [showAddTaskModal, setShowAddTaskModal] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [newTaskDescription, setNewTaskDescription] = useState('');
-  /*const [newTaskDueDate, setNewTaskDueDate] = useState('');*/ //Cambio Realizado
-  const [date, setDate] = useState(new Date()); // Nuevo estado para la fecha
-  const [show, setShow] = useState(false); // Nuevo estado para mostrar/ocultar el selector de fecha
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState(null);
+  const [date, setDate] = useState(new Date());
+  const [show, setShow] = useState(false);
   const navigation = useNavigation();
 
   //Cambio Realizado
@@ -61,7 +62,7 @@ const TaskListScreen = ({ route }) => {
       return;
     }
     //Comprueba si la fecha seleccionada es anterior a la fecha actual
-    if(date < new Date()){
+    if (date < new Date()) {
       alert('La fecha de vencimiento no puede ser anterior a la fecha actual');
       return;
     }
@@ -98,29 +99,49 @@ const TaskListScreen = ({ route }) => {
   };
 
   const handleDeleteTask = async (taskId) => {
-    try {
-      const authToken = await getAuthToken();
-      if (!authToken) {
-        navigation.navigate('Login');
-        return;
-      }
-
-      const response = await axios.delete(`${API_URL}/lists/${listId}/tasks/${taskId}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      if (response.status === 200) {
-        // Eliminar la tarea del estado "tasks"
-        setTasks((prevTasks) =>
-          prevTasks.filter((task) => task.task_id !== taskId)
-        );
-      }
-    } catch (error) {
-      console.error('Error al eliminar la tarea:', error);
-    }
+    // Guarda la tarea que se va a eliminar
+    const task = tasks.find((task) => task.task_id === taskId);
+    setTaskToDelete(task);
+    setShowDeleteConfirmation(true);
   };
+
+  const confirmDeleteTask = async () => {
+    // Oculta el modal de confirmación
+    setShowDeleteConfirmation(false);
+
+    if (taskToDelete) {
+      // Realiza la eliminación de la tarea
+      try {
+        const authToken = await getAuthToken();
+        if (!authToken) {
+          navigation.navigate('Login');
+          return;
+        }
+
+        const response = await axios.delete(
+          `${API_URL}/lists/${listId}/tasks/${taskToDelete.task_id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+
+        if (response.status === 200) {
+          // Eliminar la tarea del estado "tasks"
+          setTasks((prevTasks) =>
+            prevTasks.filter((task) => task.task_id !== taskToDelete.task_id)
+          );
+        }
+      } catch (error) {
+        console.error('Error al eliminar la tarea:', error);
+      }
+    }
+
+    // Restablece el estado de la tarea a eliminar
+    setTaskToDelete(null);
+  };
+
 
   const handleCompleteTask = async (taskId, isCompleted) => {
     try {
@@ -266,27 +287,6 @@ const TaskListScreen = ({ route }) => {
                   onChange={onChange}
                 />
               )}
-              {/*<Text style={styles.inputLabel}>Fecha de vencimiento</Text>
-              <TouchableOpacity onPress={() => setShow(true)}>
-                <Text>{date.toISOString().split('T')[0]}</Text>
-              </TouchableOpacity>
-              {show && (
-                <DateTimePicker
-                  testID="dateTimePicker"
-                  value={date}
-                  mode={'date'}
-                  display="default"
-                  onChange={onChange}
-                />
-              )}*/}
-
-              {/*<Text style={styles.inputLabel}>Fecha</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="Fecha de vencimiento (YYYY-MM-DD)"
-                value={newTaskDueDate}
-                onChangeText={(text) => setNewTaskDueDate(text)}
-              />*/}
               <View style={styles.buttonRow}>
                 <TouchableOpacity
                   style={styles.cancelButton}
@@ -296,13 +296,39 @@ const TaskListScreen = ({ route }) => {
                     setNewTaskDescription('');
                   }}
                 >
-                  <Text style={styles.cancelButtonText}>Cancelar</Text>
+                  <Text style={styles.buttonText}>Cancelar</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.createButton}
                   onPress={handleCreateTask}
                 >
-                  <Text style={styles.createButtonText}>Crear Tarea</Text>
+                  <Text style={styles.buttonText}>Crear Tarea</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+        <Modal
+          visible={showDeleteConfirmation}
+          animationType="slide"
+          transparent={true}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Confirmar Eliminación</Text>
+              <Text>¿Está seguro de que desea eliminar esta tarea?</Text>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.cancelButton}
+                  onPress={() => setShowDeleteConfirmation(false)}
+                >
+                  <Text style={styles.buttonText}>Cancelar</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.deleteDeleteButton}
+                  onPress={confirmDeleteTask}
+                >
+                  <Text style={styles.buttonText}>Eliminar</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -360,6 +386,14 @@ const styles = StyleSheet.create({
     backgroundColor: '#ff0000',
     borderRadius: 5,
   },
+  // Agrega estos estilos al objeto de estilos
+  deleteDeleteButton: {
+    marginTop: 10,
+    backgroundColor: '#ff0000',
+    padding: 12,
+    borderRadius: 5,
+    width: '45%',
+  },
   addButton: {
     marginVertical: 16,
     padding: 16,
@@ -409,10 +443,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-  taskActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-  },
   taskTitle: {
     fontSize: 22,
     fontWeight: 'bold',
@@ -437,9 +467,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   buttonRow: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-},
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   completeButton: {
     marginLeft: 8,
     padding: 8,
@@ -450,10 +480,6 @@ const styles = StyleSheet.create({
     height: 40,
     backgroundColor: '#546DF8',
   },
-  completeButtonText: {
-    color: '#fff',
-  },
-  
   inputRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -477,20 +503,16 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: '45%',
   },
-  cancelButtonText: {
+  buttonText: {
     color: 'white',
-    textAlign:'center',
+    textAlign: 'center',
   },
   createButton: {
     marginTop: 10,
     backgroundColor: '#3e4bed',
     padding: 12,
     borderRadius: 5,
-    width:'45%',
-  },
-  createButtonText: {
-    color: 'white',
-    textAlign: 'center',
+    width: '45%',
   },
 });
 

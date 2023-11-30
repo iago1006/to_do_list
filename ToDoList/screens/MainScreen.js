@@ -9,6 +9,8 @@ const MainScreen = ({ navigation }) => {
   const [taskLists, setTaskLists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showAddListModal, setShowAddListModal] = useState(false);
+  const [showDeleteListConfirmation, setShowDeleteListConfirmation] = useState(false);
+  const [listToDelete, setListToDelete] = useState(null);
   const [newListName, setNewListName] = useState('');
 
   const fetchTaskLists = useCallback(async () => {
@@ -95,29 +97,46 @@ const MainScreen = ({ navigation }) => {
   };
 
   const handleDeleteList = async (listId) => {
-    try {
-      const authToken = await getAuthToken();
-      if (!authToken) {
-        navigation.navigate('Login');
-        return;
-      }
-
-      const response = await axios.delete(`${API_URL}/lists/${listId}`, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      if (response.status === 200) {
-        // Eliminar la lista del estado taskLists
-        setTaskLists((prevTaskLists) =>
-          prevTaskLists.filter((list) => list.list_id !== listId)
-        );
-      }
-    } catch (error) {
-      console.error('Error al eliminar la lista de tareas:', error);
-    }
+    // Guarda la lista que se va a eliminar
+    const list = taskLists.find((list) => list.list_id === listId);
+    setListToDelete(list);
+    setShowDeleteListConfirmation(true);
   };
+
+  const confirmDeleteList = async () => {
+    // Oculta el modal de confirmación
+    setShowDeleteListConfirmation(false);
+
+    if (listToDelete) {
+      // Realiza la eliminación de la lista
+      try {
+        const authToken = await getAuthToken();
+        if (!authToken) {
+          navigation.navigate('Login');
+          return;
+        }
+
+        const response = await axios.delete(`${API_URL}/lists/${listToDelete.list_id}`, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+          },
+        });
+
+        if (response.status === 200) {
+          // Eliminar la lista del estado "taskLists"
+          setTaskLists((prevTaskLists) =>
+            prevTaskLists.filter((list) => list.list_id !== listToDelete.list_id)
+          );
+        }
+      } catch (error) {
+        console.error('Error al eliminar la lista de tareas:', error);
+      }
+    }
+
+    // Restablece el estado de la lista a eliminar
+    setListToDelete(null);
+  };
+
 
 
   return (
@@ -178,13 +197,39 @@ const MainScreen = ({ navigation }) => {
                 style={styles.cancelButton}
                 onPress={() => setShowAddListModal(false)}
               >
-                <Text style={styles.cancelButtonText}>Cancelar</Text>
+                <Text style={styles.buttonText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.createButton}
                 onPress={handleCreateList}
               >
-                <Text style={styles.createButtonText}>Crear Lista</Text>
+                <Text style={styles.buttonText}>Crear Lista</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={showDeleteListConfirmation}
+        animationType="slide"
+        transparent={true}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Confirmar Eliminación</Text>
+            <Text>¿Está seguro de que desea eliminar esta lista?</Text>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowDeleteListConfirmation(false)}
+              >
+                <Text style={styles.buttonText}>Cancelar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.deleteDeleteButton}
+                onPress={confirmDeleteList}
+              >
+                <Text style={styles.buttonText}>Eliminar</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -238,6 +283,20 @@ const styles = StyleSheet.create({
   },
   deleteButton: {
     padding: 16,
+  },
+  // Agrega estos estilos al objeto de estilos
+  deleteDeleteButton: {
+    padding: 14,
+    backgroundColor: '#ff0000',
+    color: 'white',
+    borderRadius: 6,
+    width: '45%',
+  },
+  buttonText: {
+    fontSize: 15,
+    color: 'white',
+    fontWeight: 'bold',
+    textAlign: 'center',
   },
   addButton: {
     marginVertical: 16,
@@ -303,18 +362,6 @@ const styles = StyleSheet.create({
     width: '45%',
     fontWeight: 'bold',
   },
-  cancelButtonText: {
-    fontSize: 15,
-    color: 'white',
-    fontWeight: 'bold',
-    textAlign: 'center'
-  },
-  createButtonText: {
-    color: 'white',
-    fontSize: 15,
-    fontWeight: 'bold',
-    textAlign: 'center'
-  }
 });
 
 export default MainScreen;
