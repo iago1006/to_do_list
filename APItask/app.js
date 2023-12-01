@@ -162,7 +162,7 @@ app.post('/lists', authenticateToken, async (req, res) => {
 // Ruta para crear una nueva tarea en una lista
 app.post('/lists/:listId/tasks', authenticateToken, async (req, res) => {
     try {
-        const { title, description, dueDate } = req.body;
+        const { title, description, dueDate, taskTime } = req.body;
         const listId = req.params.listId;
         const userId = req.user.userId;
 
@@ -175,11 +175,11 @@ app.post('/lists/:listId/tasks', authenticateToken, async (req, res) => {
         }
 
         // Insertar la nueva tarea en la base de datos
-        const insertTaskQuery = 'INSERT INTO tasks (list_id, title, description, due_date) VALUES (?, ?, ?, ?)';
-        const [result] = await db.promise().query(insertTaskQuery, [listId, title, description, dueDate]);
+        const insertTaskQuery = 'INSERT INTO tasks (list_id, title, description, due_date, task_time) VALUES (?, ?, ?, ?, ?)';
+        const [result] = await db.promise().query(insertTaskQuery, [listId, title, description, dueDate, taskTime]);
 
         // Devolver la tarea creada como respuesta
-        res.status(201).json({ taskId: result.insertId, title, description, dueDate });
+        res.status(201).json({ taskId: result.insertId, title, description, dueDate, taskTime });
     } catch (error) {
         console.error('Error al crear la tarea:', error);
         res.status(500).json({ message: 'Error al crear la tarea' });
@@ -286,21 +286,21 @@ app.delete('/lists/:listId', authenticateToken, async (req, res) => {
 // Ruta para actualizar una tarea
 app.patch('/lists/:listId/tasks/:taskId', authenticateToken, async (req, res) => {
     try {
-        const { completed } = req.body;
+        const { title, description, dueDate, taskTime, completed } = req.body;
         const taskId = req.params.taskId;
         const userId = req.user.userId;
 
         // Verificar si la tarea pertenece a la lista y al usuario
-        const isTaskValidQuery = 'SELECT * FROM tasks t INNER JOIN task_lists l ON t.list_id = l.list_id WHERE t.task_id = ? AND l.user_id = ?';
+        const isTaskValidQuery = 'SELECT * FROM tasks t JOIN task_lists l ON t.list_id = l.list_id WHERE t.task_id = ? AND l.user_id = ?';
         const [validTask] = await db.promise().query(isTaskValidQuery, [taskId, userId]);
 
         if (!validTask.length) {
             return res.status(403).json({ message: 'No tienes permiso para actualizar esta tarea.' });
         }
 
-        // Actualizar el campo "completed" de la tarea en la base de datos
-        const updateTaskQuery = 'UPDATE tasks SET completed = ? WHERE task_id = ?';
-        await db.promise().query(updateTaskQuery, [completed, taskId]);
+        // Actualizar la tarea en la base de datos
+        const updateTaskQuery = 'UPDATE tasks SET title = ?, description = ?, due_date = ?, task_time = ?, completed = ? WHERE task_id = ?';
+        await db.promise().query(updateTaskQuery, [title, description, dueDate, taskTime, completed, taskId]);
 
         res.status(200).json({ message: 'Tarea actualizada correctamente' });
     } catch (error) {
