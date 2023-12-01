@@ -23,12 +23,19 @@ const TaskListScreen = ({ route }) => {
   const [date, setDate] = useState(today);
   const [show, setShow] = useState(false);
   const navigation = useNavigation();
-
   //Cambio Realizado
   const onChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShow(Platform.OS === 'ios');
     setDate(currentDate);
+  };
+  //Cambio Realizado
+  const [time, setTime] = useState(new Date());
+  const [showTimePicker, setShowTimePicker] = useState(false);
+  const onChangeTime = (event, selectedTime) => {
+    const currentTime = selectedTime || time;
+    setShowTimePicker(Platform.OS === 'ios');
+    setTime(currentTime);
   };
   // Función para obtener las tareas de la lista
   const fetchTasks = async () => {
@@ -83,6 +90,7 @@ const TaskListScreen = ({ route }) => {
         description: newTaskDescription,
         /*dueDate: newTaskDueDate,*/ //Cambio Realizado
         dueDate: date.toISOString().split('T')[0],
+        taskTime: time.toISOString().split('T')[1].substring(0, 5), // Esto añadirá la hora en formato HH:MM
       };
 
       const response = await axios.post(`${API_URL}/lists/${listId}/tasks`, newTaskData, {
@@ -258,6 +266,7 @@ const TaskListScreen = ({ route }) => {
         >
           <Icon name="plus" size={18} color="white" />
         </TouchableOpacity>
+
         {/* Modal de Agregar Tarea */}
         <Modal
           visible={showAddTaskModal}
@@ -283,7 +292,7 @@ const TaskListScreen = ({ route }) => {
                 value={newTaskDescription}
                 onChangeText={(text) => setNewTaskDescription(text)}
               />
-              {/* Cambio Realizado */}
+
               <Text style={styles.inputLabel}>Fecha de vencimiento</Text>
               <View style={styles.inputRow}>
                 <TextInput
@@ -307,6 +316,36 @@ const TaskListScreen = ({ route }) => {
                   onChange={onChange}
                 />
               )}
+
+              <Text style={styles.inputLabel}>Hora</Text>
+              <View style={{ ...styles.inputRow, justifyContent: 'space-between' }}>
+                <TextInput
+                  style={styles.timeInput}
+                  value={time.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} // Esto mostrará la hora en formato HH:MM en la zona horaria local
+                  editable={false} // Esto hace que el TextInput no sea editable
+                  placeholder=" -- : -- " // Esto mostrará una línea cuando no se haya seleccionado una hora
+                />
+
+                <TouchableOpacity
+                  style={styles.datePickerButton} // Usa el mismo estilo que el botón del selector de fecha
+                  onPress={() => setShowTimePicker(true)}
+                >
+                  <Text>Seleccionar hora</Text>
+                </TouchableOpacity>
+              </View>
+              {showTimePicker && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={time}
+                  mode={'time'}
+                  display="default"
+                  onChange={onChangeTime}
+                  is24Hour={true} // Esto mostrará el selector de tiempo en formato de 24 horas
+                />
+              )}
+
+
+
               <View style={styles.buttonRow}>
                 <TouchableOpacity
                   style={styles.cancelButton}
@@ -328,6 +367,8 @@ const TaskListScreen = ({ route }) => {
             </View>
           </View>
         </Modal>
+
+
         <Modal
           visible={showDeleteConfirmation}
           animationType="slide"
