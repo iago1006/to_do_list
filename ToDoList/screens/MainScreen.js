@@ -4,6 +4,8 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import { removeAuthToken, getAuthToken, API_URL } from '../auth';
 import axios from 'axios';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
 
 const MainScreen = ({ navigation }) => {
   const [taskLists, setTaskLists] = useState([]);
@@ -12,6 +14,23 @@ const MainScreen = ({ navigation }) => {
   const [showDeleteListConfirmation, setShowDeleteListConfirmation] = useState(false);
   const [listToDelete, setListToDelete] = useState(null);
   const [newListName, setNewListName] = useState('');
+  const [logout, setLogout] = useState(false);
+  const [addList, setAddList] = useState(false);
+
+  useEffect(() => {
+    if (logout) {
+      handleLogout();
+      setLogout(false);
+    }
+  }, [logout]);
+
+  useEffect(() => {
+    if (addList) {
+      handleAddList();
+      setAddList(false);
+    }
+  }, [addList]);
+
 
   const fetchTaskLists = useCallback(async () => {
     const authToken = await getAuthToken();
@@ -137,106 +156,248 @@ const MainScreen = ({ navigation }) => {
     setListToDelete(null);
   };
 
-
+  const Tab = createBottomTabNavigator();
 
   return (
-    <ImageBackground
-      source={require('../images/fondo.png')}
-      style={styles.container}
+    <Tab.Navigator
+      screenOptions={{
+        tabBarActiveTintColor: 'white',
+        tabBarInactiveTintColor: 'white',
+        tabBarStyle: {
+          borderRadius: 40,
+          marginTop:30,
+          marginLeft: 20,
+          marginRight: 20,
+          marginBottom: 30,
+          height: 60,
+          backgroundColor: '#301adb',
+        },
+        tabBarShowLabel: false, // Oculta las etiquetas
+        tabBarIconStyle: {
+          size: 15,
+        },
+      }}
     >
-      <View style={styles.header}>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Icon name="sign-out" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>LISTA DE TAREAS</Text>
-      </View>
-      <FlatList
-        data={taskLists}
-        keyExtractor={(item) => item.list_id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.listItemContainer}>
-            <TouchableOpacity
-              style={styles.listItem}
-              onPress={() => {
-                navigation.navigate('TaskList', { listId: item.list_id, listName: item.name });
-              }}
-            >
-              <Text style={styles.listItemText}>{item.name}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.deleteButton}
-              onPress={() => handleDeleteList(item.list_id)}
-            >
-              <Icon name="trash" size={30} color="#ff0000" />
-            </TouchableOpacity>
-          </View>
-        )}
-      />
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={handleAddList}
+      <Tab.Screen
+        name="Lista de Tareas"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="home" color={color} size={size} />
+          ),
+        }}
       >
-        <Text style={styles.addButtonText}>Agregar Lista</Text>
-      </TouchableOpacity>
-      <Modal
-        visible={showAddListModal}
-        animationType="slide"
-        transparent={true}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Agregar Lista</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Nombre de la lista"
-              value={newListName}
-              onChangeText={(text) => setNewListName(text)}
+        {() => (
+          <ImageBackground
+            style={styles.container}
+          >
+            <FlatList
+              data={taskLists}
+              keyExtractor={(item) => item.list_id.toString()}
+              renderItem={({ item }) => (
+                <View style={styles.listItemContainer}>
+                  <TouchableOpacity
+                    style={styles.listItem}
+                    onPress={() => {
+                      navigation.navigate('TaskList', { listId: item.list_id, listName: item.name });
+                    }}
+                  >
+                    <Text style={styles.listItemText}>{item.name}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => handleDeleteList(item.list_id)}
+                  >
+                    <Icon style={styles.icondelete} name="trash" size={25}/>
+                  </TouchableOpacity>
+                </View>
+              )}
             />
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowAddListModal(false)}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.createButton}
-                onPress={handleCreateList}
-              >
-                <Text style={styles.buttonText}>Crear Lista</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-      <Modal
-        visible={showDeleteListConfirmation}
-        animationType="slide"
-        transparent={true}
+            <Modal
+              visible={showAddListModal}
+              animationType="slide"
+              transparent={true}
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Agregar Lista</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Nombre de la lista"
+                    value={newListName}
+                    onChangeText={(text) => setNewListName(text)}
+                  />
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => setShowAddListModal(false)}
+                    >
+                      <Text style={styles.buttonText}>Cancelar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.createButton}
+                      onPress={handleCreateList}
+                    >
+                      <Text style={styles.buttonText}>Crear Lista</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+            <Modal
+              visible={showDeleteListConfirmation}
+              animationType="slide"
+              transparent={true}
+            >
+              <View style={styles.modalContainer}>
+                <View style={styles.modalContent}>
+                  <Text style={styles.modalTitle}>Confirmar Eliminación</Text>
+                  <Text style={styles.modalDescription}>¿Está seguro de que desea eliminar esta lista?</Text>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() => setShowDeleteListConfirmation(false)}
+                    >
+                      <Text style={styles.buttonText}>Cancelar</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={styles.deleteDeleteButton}
+                      onPress={confirmDeleteList}
+                    >
+                      <Text style={styles.buttonText}>Eliminar</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              </View>
+            </Modal>
+          </ImageBackground>
+        )}
+      </Tab.Screen>
+      <Tab.Screen
+        name="AddList"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="plus" color={color} size={size} />
+          ),
+          tabBarButton: (props) => (
+            <TouchableOpacity {...props} onPress={handleAddList} />
+          ),
+        }}
       >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Confirmar Eliminación</Text>
-            <Text>¿Está seguro de que desea eliminar esta lista?</Text>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.cancelButton}
-                onPress={() => setShowDeleteListConfirmation(false)}
-              >
-                <Text style={styles.buttonText}>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.deleteDeleteButton}
-                onPress={confirmDeleteList}
-              >
-                <Text style={styles.buttonText}>Eliminar</Text>
-              </TouchableOpacity>
-            </View>
+        {() => null}
+      </Tab.Screen>
+      <Tab.Screen
+        name="Logout"
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <Icon name="sign-out" color={color} size={size} />
+          ),
+          tabBarButton: (props) => (
+            <TouchableOpacity {...props} onPress={handleLogout} />
+          ),
+        }}
+      >
+        {() => null}
+      </Tab.Screen>
+    </Tab.Navigator>
+  );
+  /*
+  <ImageBackground
+    source={require('../images/fondo.png')}
+    style={styles.container}
+  >
+    <View style={styles.header}>
+      <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+        <Icon name="sign-out" size={24} color="#FFFFFF" />
+      </TouchableOpacity>
+      <Text style={styles.headerText}>LISTA DE TAREAS</Text>
+    </View>
+    <FlatList
+      data={taskLists}
+      keyExtractor={(item) => item.list_id.toString()}
+      renderItem={({ item }) => (
+        <View style={styles.listItemContainer}>
+          <TouchableOpacity
+            style={styles.listItem}
+            onPress={() => {
+              navigation.navigate('TaskList', { listId: item.list_id, listName: item.name });
+            }}
+          >
+            <Text style={styles.listItemText}>{item.name}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.deleteButton}
+            onPress={() => handleDeleteList(item.list_id)}
+          >
+            <Icon name="trash" size={30} color="#ff0000" />
+          </TouchableOpacity>
+        </View>
+      )}
+    />
+    <TouchableOpacity
+      style={styles.addButton}
+      onPress={handleAddList}
+    >
+      <Text style={styles.addButtonText}>Agregar Lista</Text>
+    </TouchableOpacity>
+    <Modal
+      visible={showAddListModal}
+      animationType="slide"
+      transparent={true}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Agregar Lista</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nombre de la lista"
+            value={newListName}
+            onChangeText={(text) => setNewListName(text)}
+          />
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowAddListModal(false)}
+            >
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.createButton}
+              onPress={handleCreateList}
+            >
+              <Text style={styles.buttonText}>Crear Lista</Text>
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
-    </ImageBackground>
-  );
+      </View>
+    </Modal>
+    <Modal
+      visible={showDeleteListConfirmation}
+      animationType="slide"
+      transparent={true}
+    >
+      <View style={styles.modalContainer}>
+        <View style={styles.modalContent}>
+          <Text style={styles.modalTitle}>Confirmar Eliminación</Text>
+          <Text>¿Está seguro de que desea eliminar esta lista?</Text>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setShowDeleteListConfirmation(false)}
+            >
+              <Text style={styles.buttonText}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.deleteDeleteButton}
+              onPress={confirmDeleteList}
+            >
+              <Text style={styles.buttonText}>Eliminar</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  </ImageBackground>
+  */
 };
 
 const styles = StyleSheet.create({
@@ -245,41 +406,31 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     justifyContent: 'center',
     paddingTop: 50,
-    paddingBottom: 16,
+    paddingBottom: 10,
     paddingHorizontal: 30,
   },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 18,
-    backgroundColor: '#3e4bed',
-    padding: 16,
-    borderRadius: 5,
-  },
-  headerText: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginLeft: 16,
-    color: 'white',
-  },
-  logoutButton: {
-    padding: 8,
+  icondelete: {
+    borderRadius: 10,
+    color: '#301adb',
   },
   listItemContainer: {
+    backgroundColor:'#dae3ff',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
-    marginTop: 10,
+    marginBottom: 6,
+    padding: 8,
+    borderRadius: 5,
   },
   listItem: {
     flex: 1,
-    padding: 25,
-    backgroundColor: '#ECE9E9',
-    borderRadius: 8,
+    padding: 15,
+    backgroundColor: 'white',
+    borderRadius: 5,
   },
   listItemText: {
-    fontSize: 16,
+    fontSize: 15,
+    color: 'black',
   },
   deleteButton: {
     padding: 16,
@@ -293,7 +444,7 @@ const styles = StyleSheet.create({
     width: '45%',
   },
   buttonText: {
-    fontSize: 15,
+    fontSize: 14,
     color: 'white',
     fontWeight: 'bold',
     textAlign: 'center',
@@ -332,6 +483,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  modalDescription: {
+    fontSize: 18,
+  },
   input: {
     marginTop: 10,
     backgroundColor: '#ECE9E9',
@@ -344,13 +498,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   buttonContainer: {
-    marginTop: 10,
+    marginTop: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   cancelButton: {
     padding: 14,
-    backgroundColor: 'rgba(251,0,0,0.63)',
+    backgroundColor: '#301adb',
     color: 'white',
     borderRadius: 6,
     width: '45%',
