@@ -5,6 +5,8 @@ import { getAuthToken, API_URL } from '../auth';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import * as Notifications from 'expo-notifications';
+
 
 
 const TaskListScreen = ({ route }) => {
@@ -104,10 +106,38 @@ const TaskListScreen = ({ route }) => {
         setShowAddTaskModal(false);
         setNewTaskTitle('');
         setNewTaskDescription('');
+
+        // Solicita permisos para enviar notificaciones
+        const { status } = await Notifications.requestPermissionsAsync();
+        if (status !== 'granted') {
+          alert('No se concedió el permiso para enviar notificaciones');
+          return;
+        }
+
+        // Crea un objeto Date para la fecha y hora de vencimiento de la tarea
+        const dueDateTime = new Date(date.getFullYear(), date.getMonth(), date.getDate(), time.getHours() - 5, time.getMinutes());
+
+        // Programa una notificación para la fecha y hora de vencimiento de la tarea
+        const notificationId = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: newTaskTitle,
+            body: newTaskDescription,
+          },
+          trigger: dueDateTime,
+        });
+
+        // Imprime el identificador de la notificación en la consola
+        console.log('Identificador de la notificación:', notificationId);
+
+        // Imprime la fecha y hora de vencimiento en la consola
+        console.log('Fecha y hora de vencimiento:', dueDateTime);
+
       }
     } catch (error) {
       console.error('Error al crear la tarea:', error);
     }
+
+
   };
 
   const handleDeleteTask = async (taskId) => {
