@@ -220,6 +220,15 @@ const TaskListScreen = ({ route }) => {
                       year: 'numeric',
                     })}
                   </Text>
+                  <Text style={styles.taskDueTime}>
+                    {item.task_time && item.task_time.includes(':')
+                      ? new Date('1970-01-01T' + item.task_time.toString() + 'Z').toLocaleTimeString('es-PE', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })
+                      : item.task_time
+                    }
+                  </Text>
                 </View>
                 <View style={styles.taskActions}>
                   <TouchableOpacity
@@ -525,6 +534,13 @@ const styles = StyleSheet.create({
     marginBottom: 5,
     fontWeight: 'bold',
   },
+  taskDueTime: {
+    color: 'black',
+    fontSize: 12,
+    marginTop: 5,
+    fontWeight: 'bold',
+    color: '#301adb',
+  },
   taskActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -578,7 +594,7 @@ const styles = StyleSheet.create({
   },
   createButton: {
     marginTop: 10,
-    backgroundColor: '#3e4bed',
+    backgroundColor: 'red',
     padding: 12,
     borderRadius: 5,
     width: '45%',
