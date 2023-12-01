@@ -336,7 +336,7 @@ const TaskListScreen = ({ route }) => {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Confirmar Eliminación</Text>
-              <Text>¿Está seguro de que desea eliminar esta tarea?</Text>
+              <Text style={styles.modalDescription}>¿Está seguro de que desea eliminar esta tarea?</Text>
               <View style={styles.buttonRow}>
                 <TouchableOpacity
                   style={styles.cancelButton}
@@ -385,11 +385,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between', // Alinea los elementos a la derecha
     alignItems: 'center',
-    padding: 16,
+    padding: 12,
     marginTop: 10,
     marginBottom: 8,
-    backgroundColor: '#ECE9E9',
-    borderRadius: 5,
+    backgroundColor: 'white',
+    borderRadius: 12,
   },
   taskInfo: {
     flex: 1, // Ocupa todo el espacio restante
@@ -466,27 +466,30 @@ const styles = StyleSheet.create({
   taskTitle: {
     fontSize: 22,
     fontWeight: 'bold',
-    textDecorationLine: 'underline',
     marginTop: 5,
     marginBottom: 5,
+    color: '#301adb',
   },
   taskDescription: {
     marginTop: 5,
     marginBottom: 8,
     marginRight: 9,
     textAlign: 'justify',
+    fontStyle: 'italic',
     fontSize: 16,
   },
   taskDueDate: {
     color: '#555',
     marginTop: 5,
     marginBottom: 5,
+    fontWeight: 'bold',
   },
   taskActions: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
   buttonRow: {
+    marginTop: 10,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -516,9 +519,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
     borderRadius: 3,
   },
+  modalDescription: {
+    fontSize: 18,
+    textAlign: 'justify',
+  },
   cancelButton: {
     marginTop: 10,
-    backgroundColor: 'rgba(251,0,0,0.63)',
+    backgroundColor: '#301adb',
     padding: 12,
     borderRadius: 5,
     width: '45%',
@@ -526,6 +533,7 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     textAlign: 'center',
+    fontWeight: 'bold',
   },
   createButton: {
     marginTop: 10,
