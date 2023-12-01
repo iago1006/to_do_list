@@ -169,12 +169,11 @@ const MainScreen = ({ navigation }) => {
           marginLeft: 20,
           marginRight: 20,
           marginBottom: 30,
-          height: 60,
           backgroundColor: '#301adb',
         },
         tabBarShowLabel: false, // Oculta las etiquetas
         tabBarIconStyle: {
-          size: 15,
+          size: 10,
         },
       }}
     >
@@ -510,7 +509,7 @@ const styles = StyleSheet.create({
     width: '45%',
   },
   createButton: {
-    backgroundColor: '#546DF8',
+    backgroundColor: 'red',
     padding: 14,
     borderRadius: 6,
     width: '45%',

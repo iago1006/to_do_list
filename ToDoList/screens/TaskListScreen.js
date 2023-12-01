@@ -16,7 +16,11 @@ const TaskListScreen = ({ route }) => {
   const [newTaskDescription, setNewTaskDescription] = useState('');
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [taskToDelete, setTaskToDelete] = useState(null);
-  const [date, setDate] = useState(new Date());
+  /*const [date, setDate] = useState(new Date());*/
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  // Inicializa el estado date con la fecha actual sin la hora
+  const [date, setDate] = useState(today);
   const [show, setShow] = useState(false);
   const navigation = useNavigation();
 
@@ -62,7 +66,7 @@ const TaskListScreen = ({ route }) => {
       return;
     }
     //Comprueba si la fecha seleccionada es anterior a la fecha actual
-    if (date < new Date()) {
+    if (date.getTime() < today.getTime()) {
       alert('La fecha de vencimiento no puede ser anterior a la fecha actual');
       return;
     }
@@ -180,13 +184,13 @@ const TaskListScreen = ({ route }) => {
 
   return (
     <ImageBackground
-      source={require('../images/fondo4.png')}
+      source={require('../images/fondo3.png')}
       style={styles.container}
     >
       <View style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => navigation.navigate('MainScreen')}>
-            <Icon name="arrow-left" size={24} color="white" />
+            <Icon name="arrow-left" size={20} color="white" />
           </TouchableOpacity>
           <Text style={styles.headerText}>{listName}</Text>
         </View>
@@ -232,11 +236,27 @@ const TaskListScreen = ({ route }) => {
             )}
           />
         )}
+        {/*  */}
         <TouchableOpacity
-          style={styles.addButton}
+          style={{
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 70,
+            height: 70,
+            position: 'absolute',
+            bottom: 10,
+            right: 10,
+            backgroundColor: '#301adb',
+            borderRadius: 100,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+          }}
           onPress={handleAddTask}
         >
-          <Text style={styles.addButtonText}>Agregar Tarea</Text>
+          <Icon name="plus" size={18} color="white" />
         </TouchableOpacity>
         {/* Modal de Agregar Tarea */}
         <Modal
