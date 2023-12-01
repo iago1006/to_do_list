@@ -33,3 +33,7 @@ CREATE TABLE IF NOT EXISTS tasks (
 
 -- Mostrar un mensaje de confirmación
 SELECT 'Base de datos y datos de prueba creados correctamente' AS mensaje;
+
+-- Agregar nueva columna llamada task_time a la tabla "tasks"
+ALTER TABLE tasks ADD COLUMN task_time TIME;
+
