@@ -90,10 +90,15 @@ const TaskListScreen = ({ route }) => {
       const newTaskData = {
         title: newTaskTitle,
         description: newTaskDescription,
-        /*dueDate: newTaskDueDate,*/ //Cambio Realizado
-        dueDate: date.toISOString().split('T')[0],
+        dueDate: subtractHoursFromDate(date, 5).toISOString().split('T')[0],
         taskTime: time.toISOString().split('T')[1].substring(0, 5), // Esto añadirá la hora en formato HH:MM
       };
+
+      function subtractHoursFromDate(date, hours) {
+        const adjustedDate = new Date(date);
+        adjustedDate.setHours(adjustedDate.getHours() - hours);
+        return adjustedDate;
+      }
 
       const response = await axios.post(`${API_URL}/lists/${listId}/tasks`, newTaskData, {
         headers: {
