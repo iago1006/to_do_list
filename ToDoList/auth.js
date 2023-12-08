@@ -1,7 +1,7 @@
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export const API_URL = 'http://192.168.0.124:3000';
+export const API_URL = 'https://apitask-bp8t.onrender.com/';
 
 // Función para almacenar el token de autenticación en el almacenamiento local
 export const storeAuthToken = async (token) => {
